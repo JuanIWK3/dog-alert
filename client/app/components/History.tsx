@@ -21,7 +21,7 @@ export const History = async () => {
 };
 
 async function getHistory() {
-  return await fetch("https://dog-alert-psi.vercel.app/api").then((res) =>
-    res.json()
-  );
+  return await fetch("https://dog-alert-psi.vercel.app/api", {
+    cache: "no-cache",
+  }).then((res) => res.json());
 }
