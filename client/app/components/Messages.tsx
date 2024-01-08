@@ -18,7 +18,7 @@ export const Messages = () => {
     // Replace 'YOUR_WEBSOCKET_SERVER_URL' with the actual URL of your WebSocket server
     const socketUrl = "wss://websocket-server-production-9ee7.up.railway.app";
 
-    const ws = new WebSocket(socketUrl);
+    let ws = new WebSocket(socketUrl);
 
     ws.onopen = () => {
       console.log("WebSocket connected");
@@ -43,6 +43,12 @@ export const Messages = () => {
 
     ws.onclose = () => {
       console.log("WebSocket closed");
+
+      // Try to reconnect every 3 seconds
+      setTimeout(() => {
+        console.log("WebSocket reconnecting...");
+        ws = new WebSocket(socketUrl);
+      }, 3000);
     };
   }, []);
 
