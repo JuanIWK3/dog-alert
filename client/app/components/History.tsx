@@ -6,9 +6,13 @@ export const History = async () => {
 
   return (
     <div className="flex flex-col justify-center items-center mt-20 gap-4">
+      <h1 className="text-2xl font-bold text-blue-600 border-b">Dog Alert</h1>
       {data.map((motion) => {
         return (
-          <div key={motion.id}>
+          <div
+            className="border-y-2 w-full flex items-center justify-center py-4"
+            key={motion.id}
+          >
             <p className="text-xl">
               Motion Detected at {motion.createdAt.toString().slice(0, 10)}{" "}
               {motion.createdAt.toString().slice(11, 19)}
