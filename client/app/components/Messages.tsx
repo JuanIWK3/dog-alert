@@ -44,11 +44,7 @@ export const Messages = () => {
     ws.onclose = () => {
       console.log("WebSocket closed");
 
-      // Try to reconnect every 3 seconds
-      setTimeout(() => {
-        console.log("WebSocket reconnecting...");
-        ws = new WebSocket(socketUrl);
-      }, 3000);
+      window.location.reload();
     };
   }, []);
 
