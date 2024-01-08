@@ -8,7 +8,7 @@ const IndexPage = () => {
 
   useEffect(() => {
     // Replace 'YOUR_WEBSOCKET_SERVER_URL' with the actual URL of your WebSocket server
-    const socketUrl = "ws://websocket-server-production-9ee7.up.railway.app";
+    const socketUrl = "wss://websocket-server-production-9ee7.up.railway.app";
 
     const ws = new WebSocket(socketUrl);
     setSocket(ws);
