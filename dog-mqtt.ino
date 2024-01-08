@@ -3,7 +3,7 @@
 #include <Wire.h>
 #include "WifiCredentials.h"
 
-#define timeSeconds 10
+#define timeSeconds 2
 
 const char* ssid = SSID;
 const char* password = PASSWORD;
