@@ -2,11 +2,11 @@ import prisma from "@/app/lib/db";
 import { MotionsRecord } from "@prisma/client";
 
 export const History = async () => {
-  const history: MotionsRecord[] = await getHistory();
+  const data: MotionsRecord[] = (await getHistory()).data;
 
   return (
     <div>
-      {history.map((motion) => {
+      {data.map((motion) => {
         return (
           <div key={motion.id}>
             <p>Motion Detected at {motion.createdAt.toLocaleString()}</p>
@@ -18,5 +18,7 @@ export const History = async () => {
 };
 
 async function getHistory() {
-  return prisma.motionsRecord.findMany({});
+  return await fetch("https://dog-alert-psi.vercel.app/api").then((res) =>
+    res.json()
+  );
 }

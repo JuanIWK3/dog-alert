@@ -3,9 +3,6 @@
 import { useEffect, useState } from "react";
 
 export const Messages = () => {
-  const [socket, setSocket] = useState<any>(null);
-  const [messages, setMessages] = useState<string[]>([]);
-
   useEffect(() => {
     const saveMessage = async () => {
       const res = await fetch("https://dog-alert-psi.vercel.app/api", {
@@ -22,7 +19,6 @@ export const Messages = () => {
     const socketUrl = "wss://websocket-server-production-9ee7.up.railway.app";
 
     const ws = new WebSocket(socketUrl);
-    setSocket(ws);
 
     ws.onopen = () => {
       console.log("WebSocket connected");
@@ -38,8 +34,6 @@ export const Messages = () => {
           body: message,
         });
       }
-
-      setMessages((messages) => [...messages, message]);
 
       // Save message to database
       const res = await saveMessage();
