@@ -1,7 +1,13 @@
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include <Wire.h>
+#include "WifiCredentials.h"
+
 #define timeSeconds 10
 
-// Set GPIOs for LED and PIR Motion Sensor
-const int led = 26;
+const char* ssid = SSID;
+const char* password = PASSWORD;
+
 const int motionSensor = 19;
 
 // Timer: Auxiliary variables
@@ -10,9 +16,22 @@ unsigned long lastTrigger = 0;
 boolean startTimer = false;
 boolean motion = false;
 
-// Checks if motion was detected, sets LED HIGH and starts a timer
+WiFiClient espClient;
+PubSubClient mqttClient(espClient);
+long lastMsg = 0;
+char msg[50];
+int value = 0;
+
+// MQTT Broker Information
+const char* mqttServer = "broker.emqx.io";
+const int mqttPort = 1883;
+const char* mqttUser = "your_mqtt_username";
+const char* mqttPassword = "your_mqtt_password";
+const char* mqttTopic = "motion_detection_topic";
+
+// Checks if motion was detected, starts a timer
 void IRAM_ATTR detectsMovement() {
-  digitalWrite(led, HIGH);
+  motion = true;
   startTimer = true;
   lastTrigger = millis();
 }
@@ -20,29 +39,72 @@ void IRAM_ATTR detectsMovement() {
 void setup() {
   // Serial port for debugging purposes
   Serial.begin(115200);
-  
+
+  setup_wifi();
+
   // PIR Motion Sensor mode INPUT_PULLUP
   pinMode(motionSensor, INPUT_PULLUP);
   // Set motionSensor pin as interrupt, assign interrupt function and set RISING mode
   attachInterrupt(digitalPinToInterrupt(motionSensor), detectsMovement, RISING);
 
-  // Set LED to LOW
-  pinMode(led, OUTPUT);
-  digitalWrite(led, LOW);
+  mqttClient.setServer(mqttServer, mqttPort);
+  reconnect();
 }
 
-void loop() {
-  // Current time
-  now = millis();
-  if((digitalRead(led) == HIGH) && (motion == false)) {
-    Serial.println("MOTION DETECTED!!!");
-    motion = true;
+void setup_wifi() {
+  delay(10);
+
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
   }
-  // Turn off the LED after the number of seconds defined in the timeSeconds variable
-  if(startTimer && (now - lastTrigger > (timeSeconds*1000))) {
-    Serial.println("Motion stopped...");
-    digitalWrite(led, LOW);
-    startTimer = false;
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void reconnect() {
+  while (!mqttClient.connected()) {
+    // Serial.println("Connecting to MQTT...");
+    if (mqttClient.connect("ESP8266Client", mqttUser, mqttPassword)) {
+      // Serial.println("Connected to MQTT");
+    } else {
+      Serial.print("Failed, rc=");
+      Serial.print(mqttClient.state());
+      Serial.println("Retrying in 5 seconds");
+      delay(5000);
+    }
+  }
+}
+
+
+
+void loop() {
+  while (!mqttClient.connected()) {
+    // Serial.println("Connecting to MQTT...");
+    if (mqttClient.connect("ESP8266Client", mqttUser, mqttPassword)) {
+      // Serial.println("Connected to MQTT");
+    } else {
+      Serial.print("Failed, rc=");
+      Serial.print(mqttClient.state());
+      Serial.println("Retrying in 5 seconds");
+      delay(5000);
+    }
+  }
+
+  mqttClient.loop();
+
+  if (motion) {
+    mqttClient.publish(mqttTopic, "Motion Detected");
     motion = false;
+    delay(timeSeconds * 1000);
   }
 }
