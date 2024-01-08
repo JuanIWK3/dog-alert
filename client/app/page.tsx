@@ -1,60 +1,26 @@
-"use client";
+import { History } from "./components/History";
+import { Messages } from "./components/Messages";
 
-import { useEffect, useState } from "react";
+async function getData() {
+  const res = await fetch("http://localhost:3000/api", {
+    cache: "no-cache",
+  });
 
-const IndexPage = () => {
-  const [socket, setSocket] = useState<any>(null);
-  const [messages, setMessages] = useState<string[]>([]);
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch data");
+  }
 
-  useEffect(() => {
-    // Replace 'YOUR_WEBSOCKET_SERVER_URL' with the actual URL of your WebSocket server
-    const socketUrl = "wss://websocket-server-production-9ee7.up.railway.app";
+  return res.json();
+}
 
-    const ws = new WebSocket(socketUrl);
-    setSocket(ws);
-
-    ws.onopen = () => {
-      console.log("WebSocket connected");
-    };
-
-    ws.onmessage = (event) => {
-      const message = event.data;
-      console.log("Received Message:", message);
-
-      // Trigger push notification
-      if (Notification.permission === "granted") {
-        const notification = new Notification("New Message", {
-          body: message,
-        });
-      }
-
-      setMessages((messages) => [...messages, message]);
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket closed");
-    };
-
-    return () => {
-      ws.close();
-    };
-  }, []);
-
-  // Request notification permission on component mount
-  useEffect(() => {
-    Notification.requestPermission();
-  }, []);
+export default async function Page() {
+  const data = await getData();
 
   return (
-    <div>
-      <h1>Next.js WebSocket Example</h1>
-      <ul>
-        {messages.map((message, index) => (
-          <li key={index}>{message}</li>
-        ))}
-      </ul>
-    </div>
+    <main>
+      <Messages />
+      <History />
+    </main>
   );
-};
-
-export default IndexPage;
+}
