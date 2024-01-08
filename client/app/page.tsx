@@ -2,7 +2,7 @@ import { History } from "./components/History";
 import { Messages } from "./components/Messages";
 
 async function getData() {
-  const res = await fetch("/api", {
+  const res = await fetch("https://dog-alert-psi.vercel.app/api", {
     cache: "no-cache",
   });
 

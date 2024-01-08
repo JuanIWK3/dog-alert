@@ -8,7 +8,7 @@ export const Messages = () => {
 
   useEffect(() => {
     const saveMessage = async () => {
-      const res = await fetch("/api", {
+      const res = await fetch("https://dog-alert-psi.vercel.app/api", {
         method: "POST",
       });
 
